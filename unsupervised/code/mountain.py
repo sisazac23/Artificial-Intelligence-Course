@@ -8,63 +8,82 @@ import matplotlib.pyplot as plt
 
 
 
-def mountain(v,x,sigma):
-    return np.sum(np.exp(-euclidean_distance(v,x)**(2) /2*sigma**2))
+def mountain_height(prototype,data,variance):
+    return np.sum(np.exp(-euclidean_distance(prototype,data)**(2) /2*variance**2))
 
-def mountain_clustering(n: int, gr: int, X: np.ndarray, sigma: np.array, kn: int):
-    '''Where n refers to de dimension, gr the grid divisions, X is the raw data
-    to be clustered, sigma is an array of deviations for the mountain density
-    function, and kn is the number of centers to be found'''
-#Set up grid matrix of n-dimensions (V)
+def mountain_clustering(n: int, grid: int, data: np.ndarray, variance: np.array, number_clusters: int):
+    '''Performs mountain clustering on the data in df, with the number of clusters defined by number_clusters.
+       The radius of the neighborhood of each cluster is given by variance.
+    
+    Args:
+        n: number to be used in the grid dimension
+        grid: grid dimension
+        data: data to be clustered
+        variance: variance of the gaussian function
+        number_clusters: number of clusters to be found
 
-    v_dim=gr*np.ones([1,n])
-    M = np.zeros([int(x) for x in v_dim[0]])
-    M_r=M.reshape(1,-1)[0]
-    cur=np.ones([1,n])
+    Output:
+        center: list of cluster centers
+        clusters: array of cluster assignments
+    '''
+#Set up grid matrix of n-dimensions (prototype)
+
+    proto_dimension=grid*np.ones([1,n])
+    mountain = np.zeros([int(data) for data in proto_dimension[0]])
+    mountain_reshaped=mountain.reshape(1,-1)[0]
+    current=np.ones([1,n])
     for i in range(0,n):
         for j in range(0,i+1):
-            cur[:,i]=cur[:,i]*v_dim[:,j]
-    # max_m=[] #greatest density value
-    # max_v=[] #Cluster center position
+            current[:,i]=current[:,i]*proto_dimension[:,j]
+    # max_mountain=[] #greatest density value
+    # max_prototype=[] #Cluster center position
     center=[]
-    max_idx=[]
+    max_index=[]
 
-    for k in range(0,kn):
-        max_m = 0
-        max_v = 0
+    for k in range(0,number_clusters):
+        max_mountain = 0
+        max_prototype = 0
         max_i=i
-        for i in range(0,int(cur[:,-1][0])):
+        for i in range(0,int(current[:,-1][0])):
             #Calculate the vector indexes
-            idx=i+1
+            index=i+1
             dim=np.zeros(len(range(n,0,-1))).tolist()
             for j in range(n-1,0,-1):
-                dim[j]=(m.ceil(idx/cur[:,j-1]))
-                idx=int(idx-cur[:,j-1]*(dim[j]-1))
-            dim[0]=idx
+                dim[j]=(m.ceil(index/current[:,j-1]))
+                index=int(index-current[:,j-1]*(dim[j]-1))
+            dim[0]=index
             #Dim is holing the current point index vector
             #but needs to be normalized to the range [0,1]
-            v=[d /gr for d in dim]
+            prototype=[d /grid for d in dim]
             #calculate the density of the current point
             if k==0:
-                M_r[i]=mountain(v,X,sigma[k])
+                mountain_reshaped[i]=mountain_height(prototype,data,variance[k])
             else:
-                M_r[i]=M_r[i]-M_r[max_idx[k-1]]*np.exp(-euclidean_distance(np.array(v),np.array(center[k-1]))**(2) /2*sigma[k]**2)
+                mountain_reshaped[i]=mountain_reshaped[i]-mountain_reshaped[max_index[k-1]]*np.exp(-euclidean_distance(np.array(prototype),np.array(center[k-1]))**(2) /2*variance[k]**2)
 
             #update the max density and the max density point
-            if M_r[i]>max_m:
-                max_m=M_r[i]
-                max_v=v
+            if mountain_reshaped[i]>max_mountain:
+                max_mountain=mountain_reshaped[i]
+                max_prototype=prototype
                 max_i=i
-        center.append(max_v)
-        max_idx.append(max_i)
-        print('Cluster ',k+1,' center: ',max_v)
-    distances=scipy.spatial.distance.cdist(center, X).T
+        center.append(max_prototype)
+        max_index.append(max_i)
+        print('Cluster ',k+1,' center: ',max_prototype)
+    distances=scipy.spatial.distance.cdist(center, data).T
     #Asigning a cluster to each point with the minimum distance
     clusters=np.argmin(distances,axis=1)
     return clusters, center
 
 
 def plot_mountain1(df_data: pd.DataFrame, k:int, center: list,clusters:np.ndarray):
+    '''Plots the data points and the cluster centers.
+    
+    Args:
+        df_data: data to be plotted
+        k: number of clusters
+        center: list of cluster centers
+        clusters: array of cluster assignments
+    '''
     centers = pd.DataFrame(center)
     #Plot the data points
     plt.scatter(df_data.iloc[:,2], df_data.iloc[:, 3], c=clusters, s=40,alpha=0.5)
@@ -75,6 +94,14 @@ def plot_mountain1(df_data: pd.DataFrame, k:int, center: list,clusters:np.ndarra
     plt.show()
 
 def plot_mountain(df_data: pd.DataFrame, k:int, center: list,clusters:np.ndarray):
+    '''Plots the data points and the cluster centers.
+    
+    Args:
+        df_data: data to be plotted
+        k: number of clusters
+        center: list of cluster centers
+        clusters: array of cluster assignments
+    '''
     centers = pd.DataFrame(center)
     #Plot the data points
     plt.scatter(df_data.iloc[:,0], df_data.iloc[:, 1], c=clusters, s=40,alpha=0.5)

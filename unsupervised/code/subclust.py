@@ -7,7 +7,17 @@ import pandas as pd
 
 
 def subtractive_clustering(r_a: float, r_b: float, df, kn:int):
-    '''Where r_a s the radium  for the first cluster, and r_b the second radio '''
+    '''Performs subtractive clustering on the data in df, with the number of clusters
+    to be found in kn. The radius of the neighborhood of each cluster is given by r_a
+    and r_b
+    Args: 
+        r_a: radius of the first cluster
+        r_b: radius of the second cluster
+
+    Output:
+        center: list of cluster centers
+        clusters: array of cluster assignments
+    '''
     #Density matrix
     D = np.zeros(len(df.values))
 
@@ -46,6 +56,14 @@ def subtractive_clustering(r_a: float, r_b: float, df, kn:int):
 
 
 def plot_subtractive(df_data: pd.DataFrame, k:int, center: list,clusters:np.ndarray):
+    '''Plots the data points and the cluster centers
+    
+    Args:
+        df_data: dataframe with the data points
+        k: number of clusters
+        center: list of cluster centers
+        clusters: array of cluster assignments
+    '''
     centers = pd.DataFrame(center)
     #Plot the data points
     plt.scatter(df_data.iloc[:,0], df_data.iloc[:, 1], c=clusters, s=40,alpha=0.5)
@@ -56,6 +74,15 @@ def plot_subtractive(df_data: pd.DataFrame, k:int, center: list,clusters:np.ndar
     plt.show()
 
 def plot_subtractive1(df_data: pd.DataFrame, k:int, center: list,clusters:np.ndarray):
+    '''Plots the data points and the cluster centers
+
+    Args:
+        df_data: dataframe with the data points
+        k: number of clusters
+        center: list of cluster centers
+        clusters: array of cluster assignments
+    '''
+
     centers = pd.DataFrame(center)
     #Plot the data points
     plt.scatter(df_data.iloc[:,2], df_data.iloc[:, -1], c=clusters, s=40,alpha=0.5)

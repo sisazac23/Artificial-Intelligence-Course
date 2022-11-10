@@ -7,6 +7,13 @@ import seaborn as sns
 def initialize_centroids(df_data: pd.DataFrame, k:int) -> pd.DataFrame:
     """
     Initialize centroids randomly
+
+    Args:
+        df_data (pd.DataFrame): Dataframe containing the data points
+        k (int): Number of clusters
+
+    Returns:
+        pd.DataFrame: Dataframe containing the centroids
     """
     centroids = df_data.sample(n=k)
     return centroids
@@ -14,6 +21,14 @@ def initialize_centroids(df_data: pd.DataFrame, k:int) -> pd.DataFrame:
 def assign_clusters(df_data: pd.DataFrame, centroids: pd.DataFrame,metric: str = 'euclidean') -> pd.Series:
     """
     Assign clusters to each data point
+
+    Args:
+        df_data (pd.DataFrame): Dataframe containing the data points
+        centroids (pd.DataFrame): Dataframe containing the centroids
+        metric (str, optional): Metric to use for calculating the distance. Defaults to 'euclidean'.
+
+    Returns:
+        pd.Series: Series containing the cluster for each data point
     """
     # calculate pairwise distances between data points and centroids
     distances = cdist(df_data,centroids,metric='euclidean')
@@ -24,6 +39,14 @@ def assign_clusters(df_data: pd.DataFrame, centroids: pd.DataFrame,metric: str =
 def update_centroids(df_data: pd.DataFrame, centroids: pd.DataFrame, clusters: pd.Series) -> pd.DataFrame:
     """
     Update centroids based on the new clusters
+
+    Args:
+        df_data (pd.DataFrame): Dataframe containing the data points
+        centroids (pd.DataFrame): Dataframe containing the centroids
+        clusters (pd.Series): Series containing the cluster for each data point
+    
+    Returns:
+        pd.DataFrame: Dataframe containing the updated centroids
     """
     new_centroids = df_data.groupby(clusters).mean()
     return new_centroids
@@ -31,6 +54,14 @@ def update_centroids(df_data: pd.DataFrame, centroids: pd.DataFrame, clusters: p
 def cost_function(df_data: pd.DataFrame, centroids:  pd.DataFrame,metric: str = 'euclidean') -> float:
     """
     Calculate the cost function
+
+    Args:
+        df_data (pd.DataFrame): Dataframe containing the data points
+        centroids (pd.DataFrame): Dataframe containing the centroids
+        metric (str, optional): Metric to use for calculating the distance. Defaults to 'euclidean'.
+
+    Returns:
+        float: Cost function
     """
     distances = cdist(df_data,centroids,metric)
     cost = np.sum(np.min(distances, axis=1))
@@ -39,6 +70,15 @@ def cost_function(df_data: pd.DataFrame, centroids:  pd.DataFrame,metric: str = 
 def stop_criteria(old_centroids: pd.DataFrame, new_centroids: pd.DataFrame, iterations: int, max_iter: int = 1000) -> bool:
     """
     Check if the algorithm has converged
+
+    Args:
+        old_centroids (pd.DataFrame): Dataframe containing the old centroids
+        new_centroids (pd.DataFrame): Dataframe containing the new centroids
+        iterations (int): Number of iterations
+        max_iter (int, optional): Maximum number of iterations. Defaults to 1000.
+
+    Returns:
+        bool: True if the algorithm has converged, False otherwise
     """
     if iterations > max_iter:
         return True
@@ -47,6 +87,11 @@ def stop_criteria(old_centroids: pd.DataFrame, new_centroids: pd.DataFrame, iter
 def kmeans_clustering(df_data: pd.DataFrame, k: int, metric: str = 'euclidean'):
     """
     K-means clustering algorithm
+
+    Args:
+        df_data (pd.DataFrame): Dataframe containing the data points
+        k (int): Number of clusters
+        metric (str, optional): Metric to use for calculating the distance. Defaults to 'euclidean'.
     """
     # initialize centroids
     centroids = initialize_centroids(df_data, k)
@@ -67,6 +112,15 @@ def kmeans_clustering(df_data: pd.DataFrame, k: int, metric: str = 'euclidean'):
     return centroids, clusters
 
 def plot_kmeans(df_data: pd.DataFrame, k: int, centroids: pd.DataFrame, clusters: pd.Series):
+    '''
+    Plot the results of the k-means algorithm
+    
+    Args:
+        df_data (pd.DataFrame): Dataframe containing the data points
+        k (int): Number of clusters
+        centroids (pd.DataFrame): Dataframe containing the centroids
+        clusters (pd.Series): Series containing the cluster for each data point
+    '''
     #Plot the data points
     plt.scatter(df_data.iloc[:,0], df_data.iloc[:, 1], c=clusters, s=40,alpha=0.5)
     #Plot the centroids
